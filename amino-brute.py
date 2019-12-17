@@ -13,8 +13,12 @@ colorama.init()
 
 session = requests.session()
 
-def move (y, x):
-	print("\033[%d;%dH" % (y, x))
+print('Checking for updates ...')
+
+try:
+	_latestVersion = requests.get('')
+except:
+	pass # to be finished
 
 try:
 	proxies = open('proxies.txt','r')
