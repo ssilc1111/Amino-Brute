@@ -173,7 +173,7 @@ def amino_pass(proxy, password,email):
 		while True:
 			try:
 				#print('Attempt password try..')
-				rQ = requests.post('https://aminoapps.com/api/auth',json=_jsonData,proxies=_testProxy)
+				rQ = requests.post('https://aminoapps.com/api/auth',json=_jsonData,proxies=_testProxy,timeout=2.5)
 				break
 			except:
 				#print(final_proxyCollection)
