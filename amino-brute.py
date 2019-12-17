@@ -145,7 +145,7 @@ if aliveProxies <= 2:
 	if aliveProxies > 0:
 		print('[Warning] -- > The number of alive proxies (%s) is very small !\nConsider adding more proxies to proxy file in-order to increase stability !')
 
-if aliveProxies =< 0:
+if aliveProxies <= 0:
 	clear()
 	print('[Error] --> There are no alive proxies to use !\nTroubleshooting Tips:\n  - Is your internet connection working?\n  - Do you have any proxies in the proxies file?\n  - Are the proxies being blocked by a firewall?\n  - Are the proxies correctly formatted and alive?\n\nPlease make sure that you go through the steps above before trying anything else.')
 	exit()
