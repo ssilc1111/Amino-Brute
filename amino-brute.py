@@ -177,7 +177,7 @@ def amino_pass(proxy, password,email):
 				break
 			except:
 				#print(final_proxyCollection)
-				print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect, the thread will be restarted using another proxy !'%str(proxy))
+				#print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect, the thread will be restarted using another proxy !'%str(proxy))
 				proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
 				_testProxy = {'http':str('http://'+str(proxy)),'https':str('http://'+str(proxy))}
 	except:
