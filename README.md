@@ -3,7 +3,9 @@ A brute-forcing tool for Amino (https://aminoapps.com/)
 Written in Python 3.7.4
 
 
-
+### WARNING
+I am NOT responsible for anything that happens as a result of this tool.
+I also DO NOT encourage any malicous use of this tool.
 
 ### Installation
 1. Clone the git repository ```git clone https://github.com/ssilc1111/Amino-Brute/```
